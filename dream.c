@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <unistd.h>
 #include <limits.h>
 #include <sys/types.h>
 #include <time.h>
@@ -72,13 +73,20 @@ char* build_dream(){
 
 int64_t random_number(char *table,size_t size_type){
 
-	uint64_t epoch_time 	= time(NULL);
-	uint64_t r_number	= epoch_time % 500;
+	char* local_dream = build_dream();
 	
+	uint64_t epoch_time 	= time(NULL);
+	uint64_t r_number	= ( (uint64_t) local_dream + (uint64_t) epoch_time ) % 500;
+	
+
 	for(uint16_t byte=0; byte < 500; byte++)
 	{
-		r_number += r_number | table[byte];
+
+		r_number += (r_number | table[byte]) | (uint64_t) &local_dream[byte];
+
 	}
+	
+
 	
 	switch(size_type){
 	
@@ -98,12 +106,18 @@ int64_t random_number(char *table,size_t size_type){
 			break;
 	}
 	
+
 	return r_number;
 		
 }
 
 int main(){
 
-
+	char *table = build_dream();
+	
+	for(uint32_t byte=0; byte < 100000; byte++){
+		random_number(table,2);
+	}
+	
 
 }
